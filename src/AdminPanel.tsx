@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase, type Product } from './supabase';
-import Papa from 'papaparse';
 
 interface AdminPanelProps {
   onClose: () => void;

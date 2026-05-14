@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase, type Product } from './supabase';
-import { useCart, formatPrice } from './store';
-import { CartPanel, ProductModal, OrderSuccess } from './components';
+import { formatPrice } from './store';
+import { ProductModal } from './components';
 import { AdminPanel } from './AdminPanel';
 
-const CATEGORIES = ['Todos','Grifería','Loza Sanitaria','Accesorios de Baño','Cañería y Accesorios','Repuestos','Bachas','Vanitorys','Tanques','Bombas','Calefacción','Jardín'];
+const CATEGORIES = ['Todos','Grifería','Loza Sanitaria','Accesorios de Baño','Cañería y Accesorios','Repuestos','Bachas','VANITORYS','Tanques','Bombas','Calefacción','Jardín'];
 const PAGE_SIZE = 20;
 
 const CAROUSEL_IMAGES = ['/local1.jpg', '/local2.jpg', '/local3.png'];
@@ -27,9 +27,11 @@ function HeroCarousel({ onVerProductos }: { onVerProductos: () => void }) {
       <div className="carousel-overlay" />
       
       <div className="carousel-content">
-        <h1 className="carousel-title">70 años de experiencia <span>es nuestro respaldo.</span></h1>
-        <p className="carousel-subtitle">Hoy, toda la evolución es para vos:<br/><strong>Descubrí nuestro nuevo diseño</strong></p>
-        <button className="carousel-btn" onClick={onVerProductos}>VER PRODUCTOS</button>
+        <div className="carousel-content-inner">
+          <h1 className="carousel-title">70 años de experiencia <span>es nuestro respaldo.</span></h1>
+          <p className="carousel-subtitle">Hoy, toda la evolución es para vos:<br/><strong>Descubrí nuestro nuevo diseño</strong></p>
+          <button className="carousel-btn" onClick={onVerProductos}>VER PRODUCTOS</button>
+        </div>
       </div>
 
       <button className="carousel-arrow left" onClick={() => setCurrent(c => (c - 1 + CAROUSEL_IMAGES.length) % CAROUSEL_IMAGES.length)}>←</button>
@@ -93,6 +95,9 @@ export default function App() {
     finally { setLoading(false); }
   }, [activeCategory,searchQuery,sortBy,page,selectedBrands,minPrice,maxPrice]);
 
+  const [suggestions, setSuggestions] = useState<Product[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
   // Real-time search with debounce
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -101,10 +106,34 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
+  // Suggestions fetch
+  useEffect(() => {
+    if (searchInput.trim().length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    const fetchSuggestions = async () => {
+      const { data } = await supabase.from('products')
+        .select('*')
+        .eq('status', 'active')
+        .ilike('name', `%${searchInput.trim()}%`)
+        .limit(6);
+      setSuggestions(data || []);
+      setShowSuggestions(true);
+    };
+    const timer = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
   useEffect(() => { setPage(0); }, [activeCategory, searchQuery, sortBy, selectedBrands, minPrice, maxPrice]);
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
-  const handleSearch = (e: React.FormEvent) => { e.preventDefault(); setSearchQuery(searchInput); };
+  const handleSearch = (e: React.FormEvent) => { 
+    e.preventDefault(); 
+    setSearchQuery(searchInput);
+    setShowSuggestions(false);
+  };
   const toggleBrand = (b:string) => setSelectedBrands(p=>p.includes(b)?p.filter(x=>x!==b):[...p,b]);
   const totalPages = Math.ceil(totalCount/PAGE_SIZE);
 
@@ -121,7 +150,7 @@ export default function App() {
   return (
     <>
       {/* TOP BAR */}
-      <div className="topbar">🔥 ¡Más de 1000 productos disponibles! Envíos a todo el país · Lun–Vie 9–18 hs · Sáb 9–13 hs</div>
+      <div className="topbar">🔥 ¡Más de 1000 productos disponibles! Envíos a todo el país · Lun–Vie 8:30–17 hs · Sáb 8:30–13 hs · 📍 Casa central: San José de Flores 4808, Villa Ballester</div>
 
       {/* HEADER */}
       <header className="header">
@@ -129,15 +158,43 @@ export default function App() {
           <div className="logo">
             <img src="/images/1.png" alt="Sanitarios Luque" style={{ height: '50px', width: 'auto', objectFit: 'contain' }} />
           </div>
-          <form className="search-bar" onSubmit={handleSearch}>
-            <input type="text" placeholder="¿Qué estás buscando? (grifería, inodoros...)" value={searchInput} onChange={e=>setSearchInput(e.target.value)} />
-            {searchInput && <button type="button" className="clear-search" onClick={()=>setSearchInput('')}>✕</button>}
-            <button type="submit">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            </button>
-          </form>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <form className="search-bar" onSubmit={handleSearch}>
+              <input 
+                type="text" 
+                placeholder="¿Qué estás buscando? (grifería, inodoros...)" 
+                value={searchInput} 
+                onChange={e=>setSearchInput(e.target.value)} 
+                onFocus={() => searchInput.length > 1 && setShowSuggestions(true)}
+              />
+              {searchInput && <button type="button" className="clear-search" onClick={()=>{setSearchInput(''); setShowSuggestions(false);}}>✕</button>}
+              <button type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              </button>
+            </form>
+
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="search-suggestions">
+                {suggestions.map(s => (
+                  <div key={s.id} className="suggestion-item" onClick={() => { setSelectedProduct(s); setShowSuggestions(false); }}>
+                    <img src={s.image} alt={s.name} />
+                    <div className="suggestion-info">
+                      <div className="suggestion-name">{s.name}</div>
+                      <div className="suggestion-price">{formatPrice(s.price)}</div>
+                    </div>
+                  </div>
+                ))}
+                <div className="suggestion-footer" onClick={handleSearch}>
+                  Ver todos los resultados para "{searchInput}"
+                </div>
+              </div>
+            )}
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="suggestions-overlay" onClick={() => setShowSuggestions(false)} />
+            )}
+          </div>
           <div className="header-actions">
-            <a href="https://api.whatsapp.com/send?phone=541148700684&text=Hola!%20Quiero%20consultar" target="_blank" rel="noreferrer" className="contact-btn" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <a href="https://api.whatsapp.com/send?phone=541148700684&text=Hola!%20Quiero%20hacer%20una%20consulta%20(visto%20en%20la%20web)" target="_blank" rel="noreferrer" className="contact-btn" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <img src="/whatsapp.png" alt="WhatsApp" style={{ width: '20px', height: '20px', objectFit: 'contain' }} />
               Consultar
             </a>
@@ -169,9 +226,6 @@ export default function App() {
 
       {/* MODALS */}
       {selectedProduct && <ProductModal product={selectedProduct} onClose={()=>setSelectedProduct(null)} />}
-      {selectedProduct && (
-        <div onClick={()=>setSelectedProduct(null)} style={{ position:'fixed',inset:0,background:'rgba(0,0,0,0.4)',zIndex:400 }} />
-      )}
 
       {/* PAGE */}
       {view === 'catalog' ? (
