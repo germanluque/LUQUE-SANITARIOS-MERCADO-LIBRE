@@ -122,7 +122,7 @@ export default function App() {
       setSuggestions(data || []);
       setShowSuggestions(true);
     };
-    const timer = setTimeout(fetchSuggestions, 300);
+    const timer = setTimeout(fetchSuggestions, 400);
     return () => clearTimeout(timer);
   }, [searchInput]);
 
@@ -155,7 +155,7 @@ export default function App() {
       {/* HEADER */}
       <header className="header">
         <div className="header-inner">
-          <div className="logo">
+          <div className="logo" onClick={() => selectCat('Todos')} style={{ cursor: 'pointer' }}>
             <img src="/images/1.png" alt="Sanitarios Luque" style={{ height: '50px', width: 'auto', objectFit: 'contain' }} />
           </div>
           <div style={{ flex: 1, position: 'relative' }}>
@@ -194,7 +194,7 @@ export default function App() {
             )}
           </div>
           <div className="header-actions">
-            <a href="https://api.whatsapp.com/send?phone=541148700684&text=Hola!%20Quiero%20hacer%20una%20consulta%20(visto%20en%20la%20web)" target="_blank" rel="noreferrer" className="contact-btn" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <a href="https://api.whatsapp.com/send?phone=541148701120&text=Hola!%20Quiero%20hacer%20una%20consulta%20(visto%20en%20la%20web)" target="_blank" rel="noreferrer" className="contact-btn" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <img src="/whatsapp.png" alt="WhatsApp" style={{ width: '20px', height: '20px', objectFit: 'contain' }} />
               Consultar
             </a>
@@ -530,9 +530,9 @@ export default function App() {
           <div className="footer-col">
             <h4>Contáctanos</h4>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>📞 <span>11-4870-0684</span></li>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>📞 <span>11-4870-1120</span></li>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>✉️ <span>ventas.web@sanitariosluque.com</span></li>
-              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>💬 <span>11-4870-0486</span></li>
+              <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>💬 <span>11-4870-1120</span></li>
               <li style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>📍 <span>San José de Flores 4808,<br/>Villa Ballester</span></li>
             </ul>
           </div>
@@ -549,7 +549,7 @@ export default function App() {
         </div>
       </footer>
 
-      <a href="https://api.whatsapp.com/send?phone=541148700684&text=Hola!%20Quiero%20consultar" target="_blank" rel="noreferrer" className="whatsapp-float" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
+      <a href="https://api.whatsapp.com/send?phone=541148701120&text=Hola!%20Quiero%20hacer%20una%20consulta%20(visto%20en%20la%20web)" target="_blank" rel="noreferrer" className="whatsapp-float" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
         <img src="/whatsapp.png" alt="WhatsApp" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
       </a>
 

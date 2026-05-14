@@ -137,7 +137,7 @@ export function ProductModal({ product, onClose }: ProductModalProps) {
                   COMPRAR
                 </a>
               )}
-              <a href={`https://api.whatsapp.com/send?phone=541148700684&text=Hola! Quiero consultar por: ${product.name} (visto en la web)`} 
+              <a href={`https://api.whatsapp.com/send?phone=541148701120&text=Hola! Quiero consultar por: ${product.name} (visto en la web)`} 
                 target="_blank" rel="noreferrer"
                 style={{ 
                   background: '#25D366', 
